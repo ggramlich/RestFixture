@@ -51,6 +51,11 @@ public class RestScriptFixture extends RestFixture {
         return letHandler.handle(getLastResponse(), namespaceContext, expr);
     }
 
+    public String js(String expr) {
+        LetHandler letHandler = LetHandlerFactory.getHandlerFor("js");
+        return letHandler.handle(getLastResponse(), namespaceContext, expr);
+    }
+
     public void setFileName(String fileName) {
         this.fileName = fileName;
     }
