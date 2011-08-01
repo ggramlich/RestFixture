@@ -103,10 +103,41 @@ import fit.Parse;
  * <td colspan="3">...</td>
  * </tr>
  * </table>
+ * 
+ * <p>
+ * With Slim the RestFixtureConfig can be used as a table table or it can be
+ * used as a decision table with an additional header row: |parameter|value|<br>
+ * You can also use <i>property</i> or <i>key</i> as an alias for
+ * <i>parameter</i>.<br>
+ * e.g.
+ * <table border="1">
+ * <tr>
+ * <td>smartrics.rest.fitnesse.fixture.RestFixtureConfig</td>
+ * <td>confname</td>
+ * </tr>
+ * <tr>
+ * <td>parameter</td>
+ * <td>value</td>
+ * </tr>
+ * <tr>
+ * <td>key1</td>
+ * <td>value1</td>
+ * </tr>
+ * <tr>
+ * <td>key2</td>
+ * <td>value2</td>
+ * </tr>
+ * <tr>
+ * <td>...</td>
+ * <td>...</td>
+ * </tr>
+ * </table>
  */
 public class RestFixtureConfig extends Fixture {
 
     private Config config;
+    private String parameter;
+    private String value;
 
     public RestFixtureConfig() {
 
@@ -171,5 +202,25 @@ public class RestFixtureConfig extends Fixture {
             config = Config.getConfig();
         }
         return config;
+    }
+
+    public void setProperty(String parameter) {
+        this.setParameter(parameter);
+    }
+
+    public void setKey(String parameter) {
+        this.setParameter(parameter);
+    }
+
+    public void setParameter(String parameter) {
+        this.parameter = parameter;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    public void execute() {
+        getConfig().add(parameter, value);
     }
 }

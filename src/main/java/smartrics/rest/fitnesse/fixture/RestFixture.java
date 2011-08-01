@@ -792,6 +792,17 @@ public class RestFixture extends ActionFixture {
         CellWrapper urlCell = row.getCell(1);
         String url = urlCell.text();
         String resUrl = GLOBALS.substitute(url);
+        String rBody = GLOBALS.substitute(body);
+
+        try {
+            doMethod(method, resUrl, rBody);
+            completeHttpMethodExecution();
+        } catch (RuntimeException e) {
+            getFormatter().exception(row.getCell(0), "Execution of " + method + " caused exception '" + e.getMessage() + "'");
+        }
+    }
+
+    protected void doMethod(String method, String resourceUrl, String body) {
         setLastRequest(partsFactory.buildRestRequest());
         getLastRequest().setMethod(RestRequest.Method.valueOf(method));
         getLastRequest().addHeaders(getHeaders());
@@ -802,22 +813,16 @@ public class RestFixture extends ActionFixture {
             getLastRequest().setMultipartFileName(multipartFileName);
         }
         getLastRequest().setMultipartFileParameterName(multipartFileParameterName);
-        String[] uri = resUrl.split("\\?");
+        String[] uri = resourceUrl.split("\\?");
         getLastRequest().setResource(uri[0]);
         if (uri.length == 2) {
             getLastRequest().setQuery(uri[1]);
         }
         if ("Post".equals(method) || "Put".equals(method)) {
-            String rBody = GLOBALS.substitute(body);
-            getLastRequest().setBody(rBody);
+            getLastRequest().setBody(body);
         }
-        try {
-            RestResponse response = restClient.execute(getLastRequest());
-            setLastResponse(response);
-            completeHttpMethodExecution();
-        } catch (RuntimeException e) {
-            getFormatter().exception(row.getCell(0), "Execution of " + method + " caused exception '" + e.getMessage() + "'");
-        }
+        RestResponse response = restClient.execute(getLastRequest());
+        setLastResponse(response);
     }
 
     private ContentType getContentTypeOfLastResponse() {
@@ -841,10 +846,15 @@ public class RestFixture extends ActionFixture {
         process(row.getCell(3), lastHeaders, new HeadersTypeAdapter());
         CellWrapper bodyCell = row.getCell(4);
         bodyCell.body(GLOBALS.substitute(bodyCell.body()));
+        BodyTypeAdapter bodyTypeAdapter = getBodyTypeAdapter();
+        process(bodyCell, getLastResponse().getBody(), bodyTypeAdapter);
+    }
+
+    protected BodyTypeAdapter getBodyTypeAdapter() {
         ContentType ct = getContentTypeOfLastResponse();
         BodyTypeAdapter bodyTypeAdapter = partsFactory.buildBodyTypeAdapter(ct);
         bodyTypeAdapter.setContext(namespaceContext);
-        process(bodyCell, getLastResponse().getBody(), bodyTypeAdapter);
+        return bodyTypeAdapter;
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
