@@ -184,11 +184,11 @@ public class RestFixture extends ActionFixture {
 
     private RestRequest lastRequest;
 
-    private String fileName = null;
+    protected String fileName = null;
 
-    private String multipartFileName = null;
+    protected String multipartFileName = null;
 
-    private String multipartFileParameterName = FILE;
+    protected String multipartFileParameterName = FILE;
 
     private String requestBody;
 
@@ -207,7 +207,7 @@ public class RestFixture extends ActionFixture {
      */
     private Map<String, String> defaultHeaders = new HashMap<String, String>();
 
-    private Map<String, String> namespaceContext = new HashMap<String, String>();
+    protected Map<String, String> namespaceContext = new HashMap<String, String>();
 
     private Url baseUrl;
 
@@ -479,9 +479,17 @@ public class RestFixture extends ActionFixture {
             getFormatter().exception(row.getCell(0), "You must pass a body to set");
         } else {
             String text = getFormatter().fromRaw(cell.text());
-            requestBody = GLOBALS.substitute(text);
+            setBody(GLOBALS.substitute(text));
             renderReplacement(cell, requestBody);
         }
+    }
+
+    public void setBody(String body) {
+        requestBody = body;
+    }
+
+    protected String getRequestBody() {
+        return requestBody;
     }
 
     /**
@@ -497,8 +505,12 @@ public class RestFixture extends ActionFixture {
             getFormatter().exception(row.getCell(0), "You must pass a header map to set");
         } else {
             String header = GLOBALS.substitute(cell.text());
-            requestHeaders = parseHeaders(header);
+            setHeader(header);
         }
+    }
+
+    public void setHeader(String header) {
+        requestHeaders = parseHeaders(header);
     }
 
     /**
@@ -765,7 +777,7 @@ public class RestFixture extends ActionFixture {
         configRestClient();
     }
 
-    private String emptifyBody(String b) {
+    protected String emptifyBody(String b) {
         String body = b;
         if (body == null) {
             body = "";
