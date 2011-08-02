@@ -42,17 +42,19 @@ public class RestScriptFixture extends RestFixture {
     }
 
     public String header(String expr) {
-        LetHandler letHandler = LetHandlerFactory.getHandlerFor("header");
-        return letHandler.handle(getLastResponse(), namespaceContext, expr);
+        return applyExpressionToLastResponse("header", expr);
     }
 
     public String body(String expr) {
-        LetHandler letHandler = LetHandlerFactory.getHandlerFor("body");
-        return letHandler.handle(getLastResponse(), namespaceContext, expr);
+        return applyExpressionToLastResponse("body", expr);
     }
 
     public String js(String expr) {
-        LetHandler letHandler = LetHandlerFactory.getHandlerFor("js");
+        return applyExpressionToLastResponse("js", expr);
+    }
+
+    private String applyExpressionToLastResponse(String type, String expr) {
+        LetHandler letHandler = LetHandlerFactory.getHandlerFor(type);
         return letHandler.handle(getLastResponse(), namespaceContext, expr);
     }
 
