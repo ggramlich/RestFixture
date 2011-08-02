@@ -1,0 +1,37 @@
+!3 Overriding content handlers
+
+!-RestFixture-! uses three content handlers to parse and set expectations used to verify the behaviour of HTTP calls. 
+These are the handlers currently available:
+ * '''XML''' interprets the body as an xml string and allows XPath expressions as expectations on that content
+ * '''JSON''' interprets the body as a JSON string and allows expectations to be written in JavaScript.
+ * '''TEXT''' interprets the body as a string and allows regular expression expectations.
+
+These are the defaults
+
+ * default=XML
+ * application/xml=XML
+ * application/json=JSON
+ * text/plain=TEXT
+
+!*** Note: unrecognised content types.
+Content types not recogised will be mapped to the default content handler (XML).
+***!
+
+For example, XML handler is used for for content types of application/xml; hence XPaths can be used to set expectations:
+
+-!|script|
+|GET|/resources/0|has status|200|has header|Content-Type : application/xml;.+|has body|!-
+ /resource/name[text()='a funky name'] <br/>
+ /resource/data[text()='an important message']
+-!|
+
+Bespoke mapping can be defined in the config using the config key '''restfixture.content.handlers.map'''
+
+!|RestFixtureConfig              |overridesContentHandlerConfig|
+|parameter                       |value                        |
+|restfixture.content.handlers.map|application/xml=TEXT         |
+
+-!|script|
+|start|RestScriptFixture|http://${jettyHost}:${jettyPort}|overridesContentHandlerConfig                                                                                                       |
+|GET  |/resources/0     |has status                      |200|has header|Content-Type : application/xml;.+|has body|<resource>[\s.]*<name>a funky name</name>[\s\w\d<>/=\:'.]*</resource>[\s]*|
+

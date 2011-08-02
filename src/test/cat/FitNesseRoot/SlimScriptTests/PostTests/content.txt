@@ -1,0 +1,124 @@
+!3 POST
+
+Posting an XML should create a resource
+
+!*** Note
+You set the body for the POST operation with the setBody.
+Here you can see how you can assign a value to a Slim symbol. The first cell contains the symbol assignment definition.
+The follwoing cell indicates where to get the data from. That is either the ''header'' or the _body_ of the last successful HTTP response
+Then the expression to extract the value to be assigned to the symbols. For ''header'' it has to be a regular expression, for _body_ it
+has to be an XPath whose execution must return a String node.
+***!
+-!|script|
+|setBody|<resource><name>test post</name><data>some data</data></resource>|
+|POST   |/resources  |has status                |201  |has body  |no-body |
+|show   |headers                                                          |
+|$id=   |header      |Location:/resources/(.+)  |                         |
+
+!*** Note
+Slim symbols are global: here the GET op is executed on an URI containing '''$id''' where the symbol 'id' is defined in the test above.
+The test succeedes only if the resulting XPath match the XML used for the creation of the resource.
+You can also put symbols in the expected result
+The subsequent assignment shows how to use XPaths in the body.
+
+***!
+
+-!|script|
+|GET|/resources/$id|has status|200|has body|!-
+ /resource/name[text()='test post']<br/>
+ /resource/data[text()='some data']
+-! |
+|$name=   |body|/resource/name/text()|
+|$symName=|body|/resource/name/text()|
+
+Labels that are set to null are rendered using the default value for null, e.g. the string "null"
+
+-!|script|
+|GET         |/resources/$id|has status        |200        |
+|$thisIsNull=|body          |/resource/somewhereelse/text()|
+|check       |echo          |'$thisIsNull'     |'null'     |
+
+Albeit, the value can be overridden.
+As opposed to the standard !-RestFixture-!, the replacement of the null value is not done when the symbol is evaluated, but when the body(), js() or header() return value is evaluated.
+
+!|RestFixtureConfig                   |withBespokeNullRepresentation|
+|parameter                            |value                        |
+|restfixture.null.value.representation|!--!                         |
+
+-!|script|
+|start       |RestScriptFixture|http://${jettyHost}:${jettyPort}|withBespokeNullRepresentation|
+|GET         |/resources/$id   |has status                      |200                          |
+|$thisIsNull=|body             |/resource/somewhereelse/text()                                |
+|check       |echo             |'$thisIsNull'                   |''                           |
+
+
+!|RestFixtureConfig                   |withBespokeNullRepresentation|
+|parameter                            |value                        |
+|restfixture.null.value.representation|!-NIL-!                      |
+
+-!|script|
+|start       |RestScriptFixture|http://${jettyHost}:${jettyPort}|withBespokeNullRepresentation|
+|GET         |/resources/$id   |has status                      |200                          |
+|$thisIsNull=|body             |/resource/somewhereelse/text()                                |
+|check       |echo             |'$thisIsNull'                   |'NIL'                        |
+
+!**** Json
+Expectations can be asserted also in json format for responses whose content type is 'application/json'
+Variables may be substitued in the expected result
+****!
+
+-!|script|
+|setBody|!- { "resource" : { "name" : "test post", "data" : "some data" } } -!                               |
+|POST   |/resources/        |has status              |201|has body  |no-body                                 |
+|$id=   |header             |Location:/resources/(.+)|                                                       |
+|GET    |/resources/$id.json|has status              |200|has header|Content-Type : application/json|has body|!-
+  /resource/name[text()='test post'] <br/>
+  /resource/data[text()='some data']
+-!|
+
+!**** File uploads
+Use the multipartFile property to upload files to a server
+****!
+
+!|script|FileUtilFixture                                                      |
+|content|!- { "resource" : { "name" : "test post", "data" : "some data" } } -!|
+|name   |${tempDirectory}/tempfile                                            |
+|ensure |create                                                               |
+|ensure |exists                                                               |
+
+-!|script|
+|start               |RestScriptFixture|http://${jettyHost}:${jettyPort}                                                             |
+|setMultipartFileName|${tempDirectory}/tempfile                                                                                      |
+|POST                |/resources/      |has status|200|has body|file: { "resource" : { "name" : "test post", "data" : "some data" } }|
+
+-!|script|
+|setMultipartFileName         |${tempDirectory}/tempfile                                                                                  |
+|setMultipartFileParameterName|abc123                                                                                                     |
+|POST                         |/resources/|has status|200|has body|abc123: { "resource" : { "name" : "test post", "data" : "some data" } }|
+
+Use simple file upload
+-!|script|
+|setFileName|${tempDirectory}/tempfile                                                                          |
+|POST       |/resources/|has status|200|has body|{ "resource" : { "name" : "test post", "data" : "some data" } }|
+
+!|script|FileUtilFixture          |
+|name   |${tempDirectory}/tempfile|
+|ensure |delete                   |
+|reject |exists                   |
+
+Other than the aforementioned content types you can emulate form POSTs. 
+Remember to escape the setBody content cell with ! - -!
+
+-!|script|
+|start    |RestScriptFixture|http://${jettyHost}:${jettyPort}             |
+|setHeader|Content-Type : application/x-www-form-urlencoded;charset=UTF-8 |
+|setBody  |!-name=test%20post&data=some%20data-!                          |
+|POST     |/resources       |has status              |201|has body|no-body|
+|$id=     |header           |Location:/resources/(.+)|                    |
+
+-!|script|
+|GET|/resources/$id|has status|200|has body|!-
+ /resource/name[text()='test post']
+ /resource/data[text()='some data']
+-! |
+

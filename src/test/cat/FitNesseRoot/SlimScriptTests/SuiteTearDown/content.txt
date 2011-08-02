@@ -1,0 +1,4 @@
+!|script|HttpServerFixture|
+|is started               |
+|stop server              |
+|is stopped               |

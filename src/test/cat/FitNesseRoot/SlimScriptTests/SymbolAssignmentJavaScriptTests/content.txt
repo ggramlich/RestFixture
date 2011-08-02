@@ -1,0 +1,99 @@
+!3 Assigning results from !-JavaScript-! evaluation
+
+The ''js'' method uses the full power of !-JavaScript-! to extract data from the last response parts. The additions
+to support the new !-JavaScript-! extensions will not break the existing !-RestFixture-! API.
+
+The !-JavaScript-! extensions can be used to process more effectively JSON ''Content-Type''s.
+
+''LET can access the Fitnesse Symbols map to extract data previously stored''
+
+If the context of the let context is ''js'' the expression is evaluated as a javascript string. The value assigned
+to the let label is the result of the evaluation of the content in the expression cell.
+
+For example:
+
+-!|script|
+|$message=        |js  |'Hello, World!'       |
+|check            |echo|$message|Hello, World!|
+|$sum=            |js  |'2 + 5 = ' + (2 + 5)  |
+|check            |echo|$sum    |2 + 5 = 7    |
+|$two_expressions=|js                         |!-a=1;
+'a is ' + a-! |
+|check      |echo|$two_expressions|a is 1|
+|$json_expr=|js                          |!-
+json = {
+    "widget": {
+        "debug": "on",
+        "window": {
+            "title": "Sample Konfabulator Widget",
+            "name": "main_window",
+            "width": 500,
+            "height": 500
+        },
+        "image": { 
+            "src": "Images/Sun.png",
+            "name": "sun1",
+            "hOffset": 250,
+            "vOffset": 250,
+            "alignment": "center"
+        },
+        "text": {
+            "data": "Click Here",
+            "size": 36,
+            "style": "bold",
+            "name": "text1",
+            "hOffset": 250,
+            "vOffset": 100,
+            "alignment": "center",
+            "onMouseUp": "sun1.opacity = (sun1.opacity / 100) * 90;"
+        }
+    }
+};
+json.widget.image.src
+-!|
+|check|echo|$json_expr|Images/Sun.png|
+
+(Example courtesy of http://json.org/example.html)
+
+Currently, it is not possible to use the Slim symbols through the 'symbols' object.
+-|comment|
+|let|id       |header|Location:/resources/(.+)         |               |
+|let|id_string|js    |'The id is: ' + symbols.get('id')|The id is: %id%|
+
+Instead, we can simply put the symbol for Slim evaluation into the javascript source.
+
+-!|script|
+|setBody    |<resource><name>Bill</name><data>Some data on Bill</data></resource>|
+|POST       |/resources/   |has status                |201  |has body  |no-body  |
+|$id=       |header        |Location:/resources/(.+)  |                          |
+|$id_string=|js            |'The id is: ' + '$id'                                |
+|check      |echo          |$id_string                |The id is: $id            |
+
+The scope also contains the 'response' object, populated with the data from the last Rest response executed
+
+For example
+
+-!|script|
+|GET                |/resources/1|has status                         |200                 |
+|$body_value=       |js          |response.body                      |                    |
+|setBody            |<resource><name>Bill</name><data>Some data on Bill</data></resource> |
+|POST               |/resources/ |has status                         |201|has body|no-body|
+|$id=               |header      |Location:/resources/(.+)           |                    |
+|$status_code_value=|js          |response.statusCode                                     |
+|check              |echo        |$status_code_value                 |201                 |
+|check              |js          |response.statusText                |Created             |
+|check              |js          |response.header0('Content-Length') |0                   |
+|check              |js          |response.header('Location', 0)     |/resources/$id      |
+|check              |js          |response.headerListSize('Location')|1                   |
+|show               |js          |response.headersSize()                                  |
+
+A particoular case is when the response is JSON (Content-Type : application/json). In such case, the property '''jsonbody'''
+contains the JSON object that can be accessed using the dot notation. For example
+
+-!|script|
+|GET         |/resources/1.json|has status                     |200         |
+|$body_value=|js               |response.jsonbody                           |
+|check       |js               |response.jsonbody.resource.name|a funky name|
+
+
+

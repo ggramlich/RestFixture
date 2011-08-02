@@ -1,0 +1,13 @@
+!3 Collapseable content
+
+You can use the ''response body'' method to show the complete body.
+
+TODO / Ideas : ''body if error'' returns empty string, if no error and the response body otherwise.
+New javascript button that expands all red scenario results. (This would be helpful for everybody who uses scenarios.)
+
+-!|script|
+|GET |/resources/100|has status|200|has body|!-/resource/type[text()='large content']-!|
+|show|response body                                                                    |
+|show|headers                                                                          |
+|show|status code                                                                      |
+

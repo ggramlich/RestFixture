@@ -1,0 +1,11 @@
+!|import                        |
+|smartrics.rest.fitnesse.fixture|
+
+!| script|HttpServerFixture|
+|is started                |
+|reset resources database  |
+
+Just start the !-RestScriptFixture-!, so that it is the default script table actor and can be used in the scenarios.
+
+!|script                                                 |
+|start|RestScriptFixture|http://${jettyHost}:${jettyPort}|

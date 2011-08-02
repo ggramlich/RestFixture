@@ -1,0 +1,9 @@
+!3 DELETE
+
+!*** Note
+You may not want to specify any expectation neither about the header nor about the body, as in the GET below
+***!
+
+-!|script|
+|DELETE|/resources/0|has status|204|has body|no-body|
+|GET   |/resources/0|has status|404                 |

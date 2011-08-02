@@ -1,0 +1,13 @@
+!define TEST_SYSTEM {slim}
+
+!1 Rest Fixture Acceptance Test Suite - SLIM Script Table version
+
+The !-RestFixture-! supports SLIM as test runner. In addition to using it as a !-TableTable-!, there is a derived version !-RestScriptFixture-!
+which you can also use as a !-ScriptTable-! and thus you can scenarios with !-ScenarioTables-!.
+
+Instead of using the !-RestFixture's-! own variable handling, you are encoured to use Slim's symbol mechanism.
+
+The included tests are mainly translations of the SlimTests, using lots of scenarios to make the test suite resemble the SlimTests suite.
+But actually the !-RestScriptFixture-! is supposed to be used to build your own domain specific language with scenarios.
+
+!contents -g

@@ -1,0 +1,54 @@
+!3 LET alternative with Slim symbols
+
+Instead of the LET functionality of !-RestFixture-!, we rely on the standard Slim symbol mechanisms.
+The !-RestScriptFixture-! provides the ''header'', ''js'' and ''body'' methods instead.
+
+''Extract values from header, using regular expressions''
+
+-!|script|
+|setBody|<resource><name>Bill</name><data>Some data on Bill</data></resource>|
+|POST   |/resources/     |has status     |201     |has body     |no-body     |
+|$id=   |header          |Location:/resources/(.+)                           |
+
+The regex is applied to each header. On the first match the first group is extracted and
+assigned as value to the symbol ''id''.
+
+Labels are global and can be shared across rest fixture instances.
+
+''Extract values from XML body via XPath''
+''Symbols are global and re-usable across all Slim Fixtures'' 
+
+Here follows a usage of the previously extracted ''id''.
+This example also shows how to extract data from the XML body of a response using XPath.
+
+-!|script|
+|GET|/resources/$id|has status|200|has body|!-
+ /resource/name[text()='Bill']<br/>
+ /resource/data[text()='Some data on Bill']
+-! |
+|$name=|body|/resource/name/text()|
+
+...or from a JSON body
+
+-!|script|
+|GET|/resources/1.json|has status|200|has header|Content-Type : application/json|has body|!-
+ /resource/name[text()='a funky name']<br/>
+ /resource/data[text()='an important message']
+ -! |
+|$name=|body|/resource/name/text()|
+
+
+As an alternative to !-LetTestActionFixture-! we can get/set constant values for Slim symbols with the echo method from the !-fitnesse.fixtures.EchoFixture-! that is defined as a library in SuiteSetUp.
+
+!|script                  |
+|$resType=|echo|/resources|
+
+!*** Note
+Look at the source code of this page to see that the resource URI
+for the GET method below is defined as '''$resType/$id'''
+***!
+
+-!|script|
+|GET      |$resType/$id|has status   |200    |
+|$symName=|body        |/resource/name/text()|
+|check    |echo        |$symName     |Bill   |

@@ -1,0 +1,53 @@
+These scenarios are mainly defined to make the !-RestScriptFixture-! test suite resemble the !-RestFixture-! test suite.
+
+!|scenario|GET        |resource|has status|status code|
+|get      |@resource                                  |
+|check    |status code|@statusCode                    |
+
+!|scenario|GET      |resource  |has status|expected status|has body|expected body|
+|GET      |@resource|has status|@expectedStatus                                  |
+|has body |@expectedBody                                                         |
+
+!|scenario |GET      |resource  |has status|expected status|has header|expected header|has body|expected body|
+|GET       |@resource|has status|@expectedStatus                                                             |
+|has body  |@expectedBody                                                                                    |
+|has header|@expectedHeader                                                                                  |
+
+!|scenario|PUT        |resource|has status|status code|
+|put      |@resource                                  |
+|check    |status code|@statusCode                    |
+
+!|scenario|PUT      |resource  |has status|expected status|has body|expected body|
+|PUT      |@resource|has status|@expectedStatus                                  |
+|has body |@expectedBody                                                         |
+
+!|scenario |PUT      |resource  |has status|expected status|has header|expected header|has body|expected body|
+|PUT       |@resource|has status|@expectedStatus                                                             |
+|has body  |@expectedBody                                                                                    |
+|has header|@expectedHeader                                                                                  |
+
+!|scenario|DELETE     |resource|has status|status code|
+|delete   |@resource                                  |
+|check    |status code|@statusCode                    |
+
+!|scenario|DELETE   |resource  |has status|expected status|has body|expected body|
+|DELETE   |@resource|has status|@expectedStatus                                  |
+|has body |@expectedBody                                                         |
+
+!|scenario |DELETE   |resource  |has status|expected status|has header|expected header|has body|expected body|
+|DELETE    |@resource|has status|@expectedStatus                                                             |
+|has body  |@expectedBody                                                                                    |
+|has header|@expectedHeader                                                                                  |
+
+!|scenario|POST       |resource|has status|status code|
+|post     |@resource                                  |
+|check    |status code|@statusCode                    |
+
+!|scenario|POST     |resource  |has status|expected status|has body|expected body|
+|POST     |@resource|has status|@expectedStatus                                  |
+|has body |@expectedBody                                                         |
+
+!|scenario |POST     |resource  |has status|expected status|has header|expected header|has body|expected body|
+|POST      |@resource|has status|@expectedStatus                                                             |
+|has body  |@expectedBody                                                                                    |
+|has header|@expectedHeader                                                                                  |
