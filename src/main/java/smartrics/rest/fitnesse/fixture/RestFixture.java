@@ -178,7 +178,7 @@ public class RestFixture extends ActionFixture {
 
     private static final Log LOG = LogFactory.getLog(RestFixture.class);
 
-    private Variables GLOBALS;
+    protected Variables GLOBALS;
 
     private RestResponse lastResponse;
 

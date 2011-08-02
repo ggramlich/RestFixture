@@ -55,7 +55,7 @@ public class RestScriptFixture extends RestFixture {
 
     private String applyExpressionToLastResponse(String type, String expr) {
         LetHandler letHandler = LetHandlerFactory.getHandlerFor(type);
-        return letHandler.handle(getLastResponse(), namespaceContext, expr);
+        return GLOBALS.replaceNull(letHandler.handle(getLastResponse(), namespaceContext, expr));
     }
 
     public void setFileName(String fileName) {
@@ -84,18 +84,25 @@ public class RestScriptFixture extends RestFixture {
         return getLastResponse().getHeaders();
     }
 
+    public String responseBody() {
+        if (getLastResponse() == null) {
+            return null;
+        }
+        return getLastResponse().getBody();
+    }
+
     public boolean hasBody(String expected) throws Exception {
         BodyTypeAdapter bodyTypeAdapter = getBodyTypeAdapter();
         String actual = responseBody();
         return equalsWithAdapter(expected, actual, bodyTypeAdapter);
     }
 
-    public boolean hasHeader(String expected) throws Exception {
-        return equalsWithAdapter(expected, headers(), new HeadersTypeAdapter());
+    public boolean hasHeaders(String expected) throws Exception {
+        return hasHeader(expected);
     }
 
-    public String responseBody() {
-        return getLastResponse().getBody();
+    public boolean hasHeader(String expected) throws Exception {
+        return equalsWithAdapter(expected, headers(), new HeadersTypeAdapter());
     }
 
     protected boolean equalsWithAdapter(String expected, Object actual, RestDataTypeAdapter typeAdapter) throws Exception {
